@@ -40,7 +40,7 @@ capi_helm_opts = [
     ),
     cfg.StrOpt(
         "helm_chart_repo",
-        default="https://stackhpc.github.io/capi-helm-charts",
+        default="",
         help=(
             "Reference to the helm chart repository for "
             "the cluster API driver. "
@@ -50,7 +50,7 @@ capi_helm_opts = [
     ),
     cfg.StrOpt(
         "helm_chart_name",
-        default="openstack-cluster",
+        default="oci://europe-central2-docker.pkg.dev/fleet-coyote-366418/cluster-api-manager/openstack-cluster",
         help=(
             "Name of the helm chart to use from the repo specified "
             "by the config: capi_driver.helm_chart_repo"
@@ -58,7 +58,7 @@ capi_helm_opts = [
     ),
     cfg.StrOpt(
         "default_helm_chart_version",
-        default="0.1.2-dev.0.main.55",
+        default="0.1.0",
         help=(
             "Version of the helm chart specified "
             "by the config: capi_driver.helm_chart_repo "
