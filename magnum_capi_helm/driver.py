@@ -11,6 +11,7 @@
 # under the License.
 import enum
 import re
+import textwrap
 
 from magnum.api import utils as api_utils
 from magnum.common import clients
@@ -828,6 +829,30 @@ class FlatcarDriver(Driver):
             "controlPlane": {
                 "machineFlavor": cluster.master_flavor_id,
                 "machineCount": cluster.master_count,
+                "kubeadmConfigSpec": {
+                    "preKubeadmCommands": [
+                        "bash -c \"sed -i 's/{{ local_hostname }}/$(hostname -s)/g' /etc/kubeadm.yml\"",
+                        textwrap.dedent(
+                        """
+                        cat <<EOF > /etc/containerd/config.toml
+                        version = 2
+
+                        imports = ["/etc/containerd/conf.d/*.toml"]
+
+                        [plugins]
+                        [plugins."io.containerd.grpc.v1.cri"]
+                            sandbox_image = "registry.k8s.io/pause:3.9"
+                        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+                            runtime_type = "io.containerd.runc.v2"
+                        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+                            SystemdCgroup = true
+                        [plugins."io.containerd.grpc.v1.cri".registry]
+                            config_path = "/etc/containerd/certs.d"
+                        EOF
+                        """
+                        ),
+                    ]
+                }
             },
             "nodeGroups": [
                 {
@@ -838,6 +863,32 @@ class FlatcarDriver(Driver):
                 for ng in nodegroups
                 if ng.role != NODE_GROUP_ROLE_CONTROLLER
             ],
+            "nodeGroupDefaults": {
+                "kubeadmConfigSpec": {
+                    "preKubeadmCommands": [
+                        "bash -c \"sed -i 's/{{ local_hostname }}/$(hostname -s)/g' /etc/kubeadm.yml\"",
+                        textwrap.dedent(
+                        """
+                        cat <<EOF > /etc/containerd/config.toml
+                        version = 2
+
+                        imports = ["/etc/containerd/conf.d/*.toml"]
+
+                        [plugins]
+                        [plugins."io.containerd.grpc.v1.cri"]
+                            sandbox_image = "registry.k8s.io/pause:3.9"
+                        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+                            runtime_type = "io.containerd.runc.v2"
+                        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+                            SystemdCgroup = true
+                        [plugins."io.containerd.grpc.v1.cri".registry]
+                            config_path = "/etc/containerd/certs.d"
+                        EOF
+                        """
+                        ),
+                    ]
+                }
+            },
             "addons": {
                 "monitoring": {
                     "enabled": self._get_monitoring_enabled(cluster)
@@ -856,6 +907,30 @@ class FlatcarDriver(Driver):
         extra_network_name = self._label(cluster, "extra_network_name", "")
         if extra_network_name:
             values["nodeGroupDefaults"] = {
+                "kubeadmConfigSpec": {
+                    "preKubeadmCommands": [
+                        "bash -c \"sed -i 's/{{ local_hostname }}/$(hostname -s)/g' /etc/kubeadm.yml\"",
+                        textwrap.dedent(
+                        """
+                        cat <<EOF > /etc/containerd/config.toml
+                        version = 2
+
+                        imports = ["/etc/containerd/conf.d/*.toml"]
+
+                        [plugins]
+                        [plugins."io.containerd.grpc.v1.cri"]
+                            sandbox_image = "registry.k8s.io/pause:3.9"
+                        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+                            runtime_type = "io.containerd.runc.v2"
+                        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+                            SystemdCgroup = true
+                        [plugins."io.containerd.grpc.v1.cri".registry]
+                            config_path = "/etc/containerd/certs.d"
+                        EOF
+                        """
+                        ),
+                    ]
+                },
                 "machineNetworking": {
                     "ports": [
                         {},
