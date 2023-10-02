@@ -828,6 +828,11 @@ class IgnitionDriver(Driver):
             "controlPlane": {
                 "machineFlavor": cluster.master_flavor_id,
                 "machineCount": cluster.master_count,
+                "kubeadmConfigSpec": {
+                    "preKubeadmCommands": [
+                        "bash -c \"sed -i 's/{{ local_hostname }}/$(hostname -s)/g' /etc/kubeadm.yml\""
+                    ]
+                }
             },
             "nodeGroups": [
                 {
@@ -838,6 +843,13 @@ class IgnitionDriver(Driver):
                 for ng in nodegroups
                 if ng.role != NODE_GROUP_ROLE_CONTROLLER
             ],
+            "nodeGroupDefaults": {
+                "kubeadmConfigSpec": {
+                    "preKubeadmCommands": [
+                        "bash -c \"sed -i 's/{{ local_hostname }}/$(hostname -s)/g' /etc/kubeadm.yml\""
+                    ]
+                }
+            },
             "addons": {
                 "monitoring": {
                     "enabled": self._get_monitoring_enabled(cluster)
@@ -856,6 +868,11 @@ class IgnitionDriver(Driver):
         extra_network_name = self._label(cluster, "extra_network_name", "")
         if extra_network_name:
             values["nodeGroupDefaults"] = {
+                "kubeadmConfigSpec": {
+                    "preKubeadmCommands": [
+                        "bash -c \"sed -i 's/{{ local_hostname }}/$(hostname -s)/g' /etc/kubeadm.yml\""
+                    ]
+                },
                 "machineNetworking": {
                     "ports": [
                         {},
